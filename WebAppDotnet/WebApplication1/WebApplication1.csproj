@@ -1,0 +1,37 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>228d4428-7290-4baa-9160-38c9bc641c70</UserSecretsId>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <SpaRoot>ClientApp\</SpaRoot>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.20.1" />
+  </ItemGroup>
+
+  <!-- Include node_modules in published output -->
+  <ItemGroup>
+    <Content Remove="$(SpaRoot)node_modules\**" />
+    <None Remove="$(SpaRoot)node_modules\**" />
+    <None Include="$(SpaRoot)node_modules\**" Exclude="$(SpaRoot)node_modules\**\*.js.map;$(SpaRoot)node_modules\**\node_modules\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="wwwroot\dist\" />
+  </ItemGroup>
+
+  <!-- Build target to run NPM install and build during publish -->
+  <Target Name="NpmInstallAndBuild" BeforeTargets="Build" Condition="'$(Configuration)' == 'Release'">
+    <Exec Command="npm install" WorkingDirectory="$(SpaRoot)" />
+    <Exec Command="npm run build" WorkingDirectory="$(SpaRoot)" />
+  </Target>
+
+  <!-- Clean up node_modules during clean -->
+  <Target Name="CleanSpaNodeModules" BeforeTargets="Clean">
+    <RemoveDir Directories="$(SpaRoot)node_modules" />
+  </Target>
+
+</Project>

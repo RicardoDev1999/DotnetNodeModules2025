@@ -1,0 +1,20 @@
+﻿@inject IWebHostEnvironment WebHostEnvironment
+
+@model HomeViewModel
+
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div id="user-info-component"></div>
+
+@section Scripts {
+    <script src="@AssetHelper.GetAssetPath(WebHostEnvironment, "m-user-info.js")"></script>
+    <script type="text/javascript" defer>
+        const mUserInfo = window.m_user_info;
+        const userComponent = mUserInfo.setup('user-info-component', {
+            username: '@Model.Username',
+            age: '@Model.Birthdate.ToString("yyyy-MM-dd")'
+        });
+    </script>
+}

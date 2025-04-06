@@ -1,0 +1,24 @@
+{
+  "name": "my-mvc-app-client",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "webpack --watch --mode development",
+    "build": "webpack --mode production",
+    "clean": "rimraf ../wwwroot/dist"
+  },
+  "dependencies": {
+    "m-user-info": "file:../../Modules/m-user-info"
+  },
+  "devDependencies": {
+    "css-loader": "^6.8.1",
+    "mini-css-extract-plugin": "^2.7.6",
+    "html-webpack-plugin": "^5.5.3",
+    "style-loader": "^3.3.3",
+    "terser-webpack-plugin": "^5.3.9",
+    "webpack": "^5.88.2",
+    "webpack-cli": "^5.1.4",
+    "webpack-manifest-plugin": "^5.0.0",
+    "rimraf": "^5.0.1"
+  }
+}
