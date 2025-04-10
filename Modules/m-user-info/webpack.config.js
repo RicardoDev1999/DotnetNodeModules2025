@@ -1,17 +1,19 @@
-const path = require('path');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-const CopyWebpackPlugin = require('copy-webpack-plugin');
-const TerserPlugin = require('terser-webpack-plugin');
-const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
-const fs = require('fs');
+const path = require("path");
+const HtmlWebpackPlugin = require("html-webpack-plugin");
+const CopyWebpackPlugin = require("copy-webpack-plugin");
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const TerserPlugin = require("terser-webpack-plugin");
+const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
+const { BundleAnalyzerPlugin } = require("webpack-bundle-analyzer");
+const fs = require("fs");
 
 // Check if src/dev directory exists
-const devDirExists = fs.existsSync(path.resolve(__dirname, 'src/dev'));
+const devDirExists = fs.existsSync(path.resolve(__dirname, "src/dev"));
 
 module.exports = (env, argv) => {
-  const isProduction = argv.mode === 'production';
+  const isProduction = argv.mode === "production";
   const shouldAnalyze = Boolean(env && env.analyze);
-  
+
   // Base configuration for both production and development
   const config = {
     entry: './src/index.js',
@@ -21,72 +23,87 @@ module.exports = (env, argv) => {
           test: /\.(js|jsx)$/,
           exclude: /node_modules/,
           use: {
-            loader: 'swc-loader',
+            loader: "swc-loader",
             options: {
               jsc: {
                 parser: {
                   syntax: "ecmascript",
-                  jsx: true
+                  jsx: true,
                 },
                 transform: {
                   react: {
-                    runtime: "automatic"
-                  }
-                }
-              }
-            }
-          }
-        }
+                    runtime: "automatic",
+                  },
+                },
+              },
+            },
+          },
+        },
+        {
+          test: /\.css$/,
+          use: [
+            isProduction ? MiniCssExtractPlugin.loader : "style-loader",
+            "css-loader",
+          ],
+        },
+        {
+          test: /\.less$/,
+          use: [
+            isProduction ? MiniCssExtractPlugin.loader : "style-loader",
+            "css-loader",
+            "less-loader",
+          ],
+        },
       ],
     },
     resolve: {
-      extensions: ['.js', '.jsx'],
-    }
+      extensions: [".js", ".jsx", ".css", ".less"],
+    },
   };
-  
+
   if (isProduction) {
     // Production specific configuration
-    config.mode = 'production';
+    config.mode = "production";
     config.output = {
-      path: path.resolve(__dirname, 'dist'),
-      filename: 'index.min.js', // Always output as index.min.js
+      path: path.resolve(__dirname, "dist"),
+      filename: "index.min.js", // Always output as index.min.js
       library: {
-        name: 'mUserInfo',
-        type: 'umd',
-        export: 'default'
+        name: "[name]",
+        type: "umd",
+        export: "default",
       },
-      globalObject: 'this',
-      clean: true // Clean the output directory before emit
+      globalObject: "this",
+      clean: true, // Clean the output directory before emit
     };
-    
+
     // Add externals for production
     config.externals = {
-      'react': {
-        commonjs: 'react',
-        commonjs2: 'react',
-        amd: 'React',
-        root: 'React'
+      react: {
+        commonjs: "react",
+        commonjs2: "react",
+        amd: "React",
+        root: "React",
       },
-      'react-dom': {
-        commonjs: 'react-dom',
-        commonjs2: 'react-dom',
-        amd: 'ReactDOM',
-        root: 'ReactDOM'
+      "react-dom": {
+        commonjs: "react-dom",
+        commonjs2: "react-dom",
+        amd: "ReactDOM",
+        root: "ReactDOM",
       },
-      'react-redux': {
-        commonjs: 'react-redux',
-        commonjs2: 'react-redux',
-        amd: 'ReactRedux',
-        root: 'ReactRedux'
+      "react-redux": {
+        commonjs: "react-redux",
+        commonjs2: "react-redux",
+        amd: "ReactRedux",
+        root: "ReactRedux",
       },
-      'redux': {
-        commonjs: 'redux',
-        commonjs2: 'redux',
-        amd: 'Redux',
-        root: 'Redux'
-      }
+      redux: {
+        commonjs: "redux",
+        commonjs2: "redux",
+        amd: "Redux",
+        root: "Redux",
+      },
     };
-    
+
     // Add optimization for production
     config.optimization = {
       minimize: true,
@@ -98,73 +115,77 @@ module.exports = (env, argv) => {
               ecma: 5,
               warnings: false,
               comparisons: false,
-              inline: 2
+              inline: 2,
             },
             mangle: { safari10: true },
             output: {
               ecma: 5,
               comments: false,
-              ascii_only: true
-            }
+              ascii_only: true,
+            },
           },
-          extractComments: false
-        })
-      ]
+          extractComments: false,
+        }),
+        // CSS minification
+        new CssMinimizerPlugin(),
+      ],
     };
-    
+
     // Add bundle analyzer if requested
-    config.plugins = [];
+    config.plugins = [
+      new MiniCssExtractPlugin({
+        filename: "[name].min.css",
+      }),
+    ];
     if (shouldAnalyze) {
       config.plugins.push(new BundleAnalyzerPlugin());
     }
   } else {
     // Development specific configuration
-    config.mode = 'development';
+    config.mode = "development";
     config.output = {
-      path: path.resolve(__dirname, 'dist'),
-      filename: 'index.js',
+      path: path.resolve(__dirname, "dist"),
+      filename: "index.js",
       library: {
-        name: 'mUserInfo',
-        type: 'umd',
-        export: 'default'
+        name: "[name]",
+        type: "umd",
+        export: "default",
       },
-      globalObject: 'this',
-      clean: true // Clean the output directory before emit
+      globalObject: "this",
+      clean: true, // Clean the output directory before emit
     };
-    
+
     // Add development plugins
     config.plugins = [
       new HtmlWebpackPlugin({
-        template: devDirExists 
-          ? path.resolve(__dirname, 'src/dev/index.html')
-          : path.resolve(__dirname, 'src/dev-template.html'),
-        filename: 'index.html'
-      })
+        template: devDirExists
+          ? path.resolve(__dirname, "src/dev/index.html")
+          : path.resolve(__dirname, "src/dev-template.html"),
+        filename: "index.html",
+      }),
     ];
-    
+
     // Add the copy plugin only if dev directory exists
     if (devDirExists) {
       config.plugins.push(
         new CopyWebpackPlugin({
-          patterns: [
-            { from: './src/dev/demo.js', to: 'demo.js' }
-          ]
+          patterns: [{ from: "./src/dev/demo.js", to: "demo.js" }],
         })
       );
     }
-    
+
     // Development server configuration
     config.devServer = {
       static: {
-        directory: path.join(__dirname, 'dist')
+        directory: path.join(__dirname, "dist"),
       },
       hot: false,
       port: 3000,
       devMiddleware: {
-        writeToDisk: true
-      }
+        writeToDisk: true,
+      },
     };
   }
-  
+
   return config;
 };

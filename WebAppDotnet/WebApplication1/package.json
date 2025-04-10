@@ -5,7 +5,7 @@
   "scripts": {
     "start": "webpack --watch --mode development",
     "build": "webpack --mode production",
-    "clean": "rimraf ../wwwroot/dist"
+    "clean": "rimraf ./wwwroot/dist"
   },
   "dependencies": {
     "m-user-info": "file:../../Modules/m-user-info"

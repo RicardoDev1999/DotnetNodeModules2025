@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import App from './App';
 import configureStore from './store';
 import { setUserData } from './store/actions';
+import "../src/assets/index.less";
 
 // The setup function that will be called by the parent application
 export const setup = (containerId, params) => {

@@ -4,16 +4,27 @@ namespace WebApplication1.Helpers
 {
     public static class AssetHelper
     {
+        private static DateTime? _lastManifestWriteTime;
         private static Dictionary<string, string> _manifestCache;
 
         // Gets asset path from the webpack manifest file
         public static string GetAssetPath(IWebHostEnvironment env, string assetName)
         {
+            var manifestPath = Path.Combine(env.WebRootPath, "dist", "asset-manifest.json");
+
+            if (env.IsDevelopment())
+            {
+                var manifestWriteTime = File.GetLastWriteTimeUtc(manifestPath);
+                if(_lastManifestWriteTime != null && _lastManifestWriteTime.Value < manifestWriteTime)
+                {
+                    _manifestCache = null!;
+                }
+                _lastManifestWriteTime = manifestWriteTime;
+            }
+
             // Load the manifest file if not already cached
             if (_manifestCache == null)
             {
-                var manifestPath = Path.Combine(env.WebRootPath, "dist", "asset-manifest.json");
-
                 if (File.Exists(manifestPath))
                 {
                     try
