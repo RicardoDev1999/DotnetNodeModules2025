@@ -6,7 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>228d4428-7290-4baa-9160-38c9bc641c70</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-    <SpaRoot>ClientApp\</SpaRoot>
+    <SpaRoot>.\</SpaRoot>
   </PropertyGroup>
 
   <ItemGroup>
@@ -24,7 +24,7 @@
   </ItemGroup>
 
   <!-- Build target to run NPM install and build during publish -->
-  <Target Name="NpmInstallAndBuild" BeforeTargets="Build" Condition="'$(Configuration)' == 'Release'">
+  <Target Name="NpmInstallAndBuild" BeforeTargets="Build">
     <Exec Command="npm install" WorkingDirectory="$(SpaRoot)" />
     <Exec Command="npm run build" WorkingDirectory="$(SpaRoot)" />
   </Target>

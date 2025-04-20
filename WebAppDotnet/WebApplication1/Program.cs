@@ -14,7 +14,24 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseStaticFiles();
+
+if (app.Environment.IsDevelopment())
+{
+    // Disable caching for static files in development
+    app.UseStaticFiles(new StaticFileOptions
+    {
+        OnPrepareResponse = ctx =>
+        {
+            ctx.Context.Response.Headers.Append("Cache-Control", "no-cache, no-store");
+            ctx.Context.Response.Headers.Append("Expires", "-1");
+        }
+    });
+}
+else
+{
+    // Normal static file serving for production
+    app.UseStaticFiles();
+}
 
 app.UseRouting();
 
